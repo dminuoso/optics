@@ -72,6 +72,9 @@ instance Profunctor p => Profunctor (Re p s t) where
   {-# INLINE lmap #-}
   {-# INLINE rmap #-}
 
+  coerce' (Re p) = Re (p . coerce')
+  {-# INLINE coerce' #-}
+
 instance Bicontravariant p => Bifunctor (Re p s t) where
   bimap  f g (Re p) = Re (p . contrabimap g f)
   first  f   (Re p) = Re (p . contrasecond f)

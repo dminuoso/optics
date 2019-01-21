@@ -39,6 +39,10 @@ class Profunctor p where
   lmap  :: (a -> b)             -> p i b c -> p i a c
   rmap  ::             (c -> d) -> p i b c -> p i b d
 
+  coerce' :: (Coercible s a, Coercible t b) => p i s t -> p i a b
+  default coerce' :: (Coercible (p i s t) (p i a b)) => p i s t -> p i a b
+  coerce' = coerce
+
 instance Functor f => Profunctor (Star f) where
   dimap f g (Star k) = Star (fmap g . k . f)
   lmap  f   (Star k) = Star (k . f)
@@ -46,6 +50,9 @@ instance Functor f => Profunctor (Star f) where
   {-# INLINE dimap #-}
   {-# INLINE lmap #-}
   {-# INLINE rmap #-}
+
+  coerce' (Star f) = Star (fmap coerce . f . coerce)
+  {-# INLINE coerce' #-}
 
 instance Profunctor (Forget r) where
   dimap f _ (Forget k) = Forget (k . f)
@@ -78,6 +85,9 @@ instance Functor f => Profunctor (IxStar f) where
   {-# INLINE dimap #-}
   {-# INLINE lmap #-}
   {-# INLINE rmap #-}
+
+  coerce' (IxStar f) = IxStar (\i -> fmap coerce . f i . coerce)
+  {-# INLINE coerce' #-}
 
 instance Profunctor (IxForget r) where
   dimap f _ (IxForget k) = IxForget (\i -> k i . f)
